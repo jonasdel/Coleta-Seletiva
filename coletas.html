@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Coleta Seletiva – Várzea Grande MT</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://js.arcgis.com/4.29/"></script>
+
+<style>
+body { margin:0; font-family:Arial; background:#f4f6f8; }
+header { background:#2e7d32; color:#fff; padding:14px; text-align:center; font-weight:bold; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; padding:12px; }
+.card { background:#fff; border-radius:8px; padding:12px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.1); }
+.card span { font-size:22px; font-weight:bold; color:#2e7d32; }
+.filters { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; padding:12px; }
+select,button { padding:8px; border-radius:6px; border:1px solid #ccc; }
+button { background:#2e7d32; color:#fff; border:none; cursor:pointer; }
+#mapDiv { height:60vh; margin:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+footer { text-align:center; padding:10px; font-size:13px; color:#666; }
+</style>
+</head>
+
+<body>
+
+<header>♻️ Coleta Seletiva – Várzea Grande / MT</header>
+
+<div class="cards">
+  <div class="card">Pontos<br><span id="total">0</span></div>
+  <div class="card">Plástico<br><span id="plastico">0</span></div>
+  <div class="card">Papel<br><span id="papel">0</span></div>
+  <div class="card">Vidro<br><span id="vidro">0</span></div>
+</div>
+
+<div class="filters">
+  <select id="bairro"><option value="">Todos os bairros</option></select>
+  <select id="dia"><option value="">Todos os dias</option></select>
+  <select id="residuo">
+    <option value="">Todos os resíduos</option>
+    <option value="Plástico">Plástico</option>
+    <option value="Papel">Papel</option>
+    <option value="Vidro">Vidro</option>
+  </select>
+  <button id="aplicar">Aplicar filtros</button>
+  <button id="limpar">Limpar filtros</button>
+  <button id="gerarPdf">Gerar PDF</button>
+</div>
+
+<div id="mapDiv"></div>
+
+<footer>Sistema público de coleta seletiva • Várzea Grande – MT</footer>
+
+<script>
+require([
+  "esri/Map",
+  "esri/views/MapView",
+  "esri/layers/GeoJSONLayer"
+], function(Map, MapView, GeoJSONLayer) {
+
+  const geojsonUrl = "https://www.arcgis.com/sharing/rest/content/items/68286e2213af416f923295dab9915433/data";
+
+  const layer = new GeoJSONLayer({
+    url: geojsonUrl,
+    title: "Pontos de Coleta",
+    outFields: ["*"],
+    popupTemplate: {
+      title: "{Nome}",
+      content: `
+        <b>Endereço:</b> {endereco}<br>
+        <b>Bairro:</b> {bairro}<br>
+        <b>Cidade:</b> {Cidade} - {Estado}<br>
+        <b>Resíduo:</b> {residuo}<br>
+        <b>Dia da Coleta:</b> {dia_semana}
+      `
+    },
+    renderer: {
+      type: "unique-value",
+      field: "residuo",
+      uniqueValueInfos: [
+        { value:"Plástico", symbol:{ type:"simple-marker", color:"#fdd835", size:12, outline:{color:"#fff", width:1} }},
+        { value:"Papel",    symbol:{ type:"simple-marker", color:"#42a5f5", size:12, outline:{color:"#fff", width:1} }},
+        { value:"Vidro",    symbol:{ type:"simple-marker", color:"#66bb6a", size:12, outline:{color:"#fff", width:1} }}
+      ]
+    }
+  });
+
+  const map = new Map({ basemap: "streets-navigation-vector", layers: [layer] });
+  const view = new MapView({
+    container: "mapDiv",
+    map: map,
+    center: [-56.132, -15.646],
+    zoom: 13,
+    constraints: { minZoom: 11, maxZoom: 18 }
+  });
+
+  const bairro = document.getElementById("bairro");
+  const dia = document.getElementById("dia");
+  const residuo = document.getElementById("residuo");
+  const total = document.getElementById("total");
+  const plastico = document.getElementById("plastico");
+  const papel = document.getElementById("papel");
+  const vidro = document.getElementById("vidro");
+  const aplicar = document.getElementById("aplicar");
+  const limpar = document.getElementById("limpar");
+  const gerarPdf = document.getElementById("gerarPdf");
+
+  layer.when(() => {
+    popularFiltros();
+    atualizarCards();
+  });
+
+  function popularFiltros() {
+    layer.queryFeatures({ where:"1=1", outFields:["bairro","dia_semana"], returnDistinctValues:true })
+      .then(r => {
+        [...new Set(r.features.map(f=>f.attributes.bairro))].filter(Boolean).sort()
+          .forEach(v=>bairro.add(new Option(v,v)));
+        [...new Set(r.features.map(f=>f.attributes.dia_semana))].filter(Boolean).sort()
+          .forEach(v=>dia.add(new Option(v,v)));
+      });
+  }
+
+  function atualizarCards() {
+    layer.queryFeatures({ where: layer.definitionExpression||"1=1", returnGeometry:false })
+      .then(r=>{
+        total.textContent = r.features.length;
+        plastico.textContent = r.features.filter(f=>f.attributes.residuo==="Plástico").length;
+        papel.textContent = r.features.filter(f=>f.attributes.residuo==="Papel").length;
+        vidro.textContent = r.features.filter(f=>f.attributes.residuo==="Vidro").length;
+      });
+  }
+
+  aplicar.onclick = async () => {
+    let where = "1=1";
+    if(bairro.value) where += ` AND bairro='${bairro.value}'`;
+    if(dia.value) where += ` AND dia_semana='${dia.value}'`;
+    if(residuo.value) where += ` AND residuo='${residuo.value}'`;
+
+    layer.definitionExpression = where;
+    atualizarCards();
+
+    const result = await layer.queryFeatures({ where:where, returnGeometry:true });
+    const featuresWithGeom = result.features.filter(f=>f.geometry);
+
+    if(featuresWithGeom.length>0){
+      const extent = featuresWithGeom.map(f=>f.geometry.extent||f.geometry)
+        .reduce((ext,e)=>ext?ext.union(e):e);
+      view.goTo(extent.expand(1.5));
+      view.popup.open({ features:[featuresWithGeom[0]], location:featuresWithGeom[0].geometry });
+    }else{
+      view.popup.close();
+    }
+  };
+
+  limpar.onclick = () => {
+    bairro.value = ""; dia.value = ""; residuo.value = "";
+    layer.definitionExpression = "1=1";
+    atualizarCards();
+    view.popup.close();
+    view.goTo({center:[-56.132,-15.646], zoom:13});
+  };
+
+  gerarPdf.onclick = async () => {
+    const { jsPDF } = window.jspdf;
+    const result = await layer.queryFeatures({ where: layer.definitionExpression||"1=1", returnGeometry:false });
+
+    if(result.features.length===0){ alert("Não há dados para gerar relatório!"); return; }
+
+    const rows = result.features.map(f=>{
+      const a = f.attributes;
+      return [a.Nome, a.endereco, a.bairro, a.residuo, a.dia_semana];
+    });
+
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Relatório de Coleta Seletiva - Várzea Grande/MT", 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Total de Pontos: ${result.features.length}`, 14, 28);
+
+    doc.autoTable({ startY:35, head:[['Nome','Endereço','Bairro','Resíduo','Dia']], body:rows, styles:{fontSize:10} });
+    doc.save("relatorio_coleta.pdf");
+  };
+
+});
+</script>
+
+</body>
+</html>
