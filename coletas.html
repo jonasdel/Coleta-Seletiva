@@ -1,190 +1,297 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8">
-<title>Coleta Seletiva – Várzea Grande MT</title>
-
+<meta charset="UTF-8">
+<title>Cadastro de Coleta Seletiva</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script src="https://js.arcgis.com/4.29/"></script>
-
 <style>
-body { margin:0; font-family:Arial; background:#f4f6f8; }
-header { background:#2e7d32; color:#fff; padding:14px; text-align:center; font-weight:bold; }
-.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; padding:12px; }
-.card { background:#fff; border-radius:8px; padding:12px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.1); }
-.card span { font-size:22px; font-weight:bold; color:#2e7d32; }
-.filters { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; padding:12px; }
-select,button { padding:8px; border-radius:6px; border:1px solid #ccc; }
-button { background:#2e7d32; color:#fff; border:none; cursor:pointer; }
-#mapDiv { height:60vh; margin:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-footer { text-align:center; padding:10px; font-size:13px; color:#666; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
+  h1 { color: #2E7D32; text-align: center; margin-bottom: 20px; }
+  form { 
+    max-width: 800px; 
+    margin: 0 auto 30px auto; 
+    background: #fff; 
+    padding: 25px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  label { font-weight: 600; margin-bottom: 5px; display: block; }
+  input, select, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
+  input:focus, select:focus { outline: none; border-color: #2E7D32; box-shadow: 0 0 5px rgba(46,125,50,0.3); }
+  button { 
+    grid-column: 1/-1; 
+    background-color: #2E7D32; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: 600; 
+    transition: background 0.3s; 
+  }
+  button:hover { background-color: #1b5e20; }
+  .checkbox-group { display: flex; gap: 15px; align-items: center; }
+  .checkbox-group label { font-weight: normal; }
+  table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: #fff; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  th, td { padding: 12px 10px; text-align: left; font-size: 14px; border-bottom: 1px solid #eee; }
+  th { background-color: #a5d6a7; font-weight: 600; }
+  tbody tr:hover { background-color: #e8f5e9; }
+  .btn-certificado { background-color: #388E3C; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
+  .btn-certificado:hover { background-color: #1b5e20; }
+  @media (max-width: 768px){
+    form { grid-template-columns: 1fr; }
+    table { display: block; overflow-x: auto; }
+  }
 </style>
 </head>
-
 <body>
 
-<header>♻️ Coleta Seletiva – Várzea Grande / MT</header>
+<h1>Cadastro de Coleta Seletiva</h1>
 
-<div class="cards">
-  <div class="card">Pontos<br><span id="total">0</span></div>
-  <div class="card">Plástico<br><span id="plastico">0</span></div>
-  <div class="card">Papel<br><span id="papel">0</span></div>
-  <div class="card">Vidro<br><span id="vidro">0</span></div>
-</div>
+<form id="cadastroForm">
+  <div>
+    <label for="cnpj">CNPJ:</label>
+    <input type="text" id="cnpj" placeholder="00.000.000/0000-00" required>
+  </div>
+  <div>
+    <label for="nome">Nome do Proprietário:</label>
+    <input type="text" id="nome" placeholder="Nome do Proprietário" required>
+  </div>
+  <div>
+    <label for="cep">CEP:</label>
+    <input type="text" id="cep" placeholder="00000-000" required>
+  </div>
+  <div>
+    <label for="endereco">Endereço:</label>
+    <input type="text" id="endereco" placeholder="Rua" required>
+  </div>
+  <div>
+    <label for="numero">Número:</label>
+    <input type="text" id="numero" placeholder="Número" required>
+  </div>
+  <div>
+    <label for="quadra">Quadra:</label>
+    <input type="text" id="quadra" placeholder="Quadra">
+  </div>
+  <div>
+    <label for="bairro">Bairro:</label>
+    <input type="text" id="bairro" placeholder="Bairro" required>
+  </div>
+  <div>
+    <label for="cidade">Cidade:</label>
+    <input type="text" id="cidade" placeholder="Cidade" required>
+  </div>
+  <div>
+    <label for="estado">Estado:</label>
+    <input type="text" id="estado" placeholder="UF" required>
+  </div>
+  <div>
+    <label for="tipoEmpreendimento">Tipo de Empreendimento:</label>
+    <select id="tipoEmpreendimento" required>
+      <option value="">Selecione</option>
+      <option value="Condomínio">Condomínio</option>
+      <option value="Mercado">Mercado</option>
+      <option value="Empresa">Empresa</option>
+      <option value="Distribuidora de Bebidas">Distribuidora de Bebidas</option>
+    </select>
+  </div>
+  <div>
+    <label>Tipos de Resíduos Coletados:</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" value="Papel" class="residuo"> Papel</label>
+      <label><input type="checkbox" value="Vidro" class="residuo"> Vidro</label>
+      <label><input type="checkbox" value="Plástico" class="residuo"> Plástico</label>
+    </div>
+  </div>
+  <div>
+    <label>Adesão e Mensalidade:</label>
+    <input type="text" id="valor" readonly>
+  </div>
+  <button type="submit">Cadastrar</button>
+</form>
 
-<div class="filters">
-  <select id="bairro"><option value="">Todos os bairros</option></select>
-  <select id="dia"><option value="">Todos os dias</option></select>
-  <select id="residuo">
-    <option value="">Todos os resíduos</option>
-    <option value="Plástico">Plástico</option>
-    <option value="Papel">Papel</option>
-    <option value="Vidro">Vidro</option>
-  </select>
-  <button id="aplicar">Aplicar filtros</button>
-  <button id="limpar">Limpar filtros</button>
-  <button id="gerarPdf">Gerar PDF</button>
-</div>
+<h2 style="text-align:center; margin-bottom:10px;">Registros Cadastrados</h2>
+<table id="tabelaRegistros">
+  <thead>
+    <tr>
+      <th>CNPJ</th>
+      <th>Proprietário</th>
+      <th>Endereço</th>
+      <th>Número</th>
+      <th>Quadra</th>
+      <th>Bairro</th>
+      <th>Cidade</th>
+      <th>Estado</th>
+      <th>Empreendimento</th>
+      <th>Resíduos</th>
+      <th>Adesão/Mensalidade</th>
+      <th>Status</th>
+      <th>Certificado</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-<div id="mapDiv"></div>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<footer>Sistema público de coleta seletiva • Várzea Grande – MT</footer>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-require([
-  "esri/Map",
-  "esri/views/MapView",
-  "esri/layers/GeoJSONLayer"
-], function(Map, MapView, GeoJSONLayer) {
+const SUPABASE_URL = 'https://zmshzpogevuzoxlhqfeb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_AiuJM7hYrKqZRxn_JWYWgA_s_VdqLgt';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const geojsonUrl = "https://www.arcgis.com/sharing/rest/content/items/68286e2213af416f923295dab9915433/data";
+const form = document.getElementById('cadastroForm');
+const tabela = document.getElementById('tabelaRegistros').querySelector('tbody');
+const tipoEmpreendimento = document.getElementById('tipoEmpreendimento');
+const valorInput = document.getElementById('valor');
+const cepInput = document.getElementById('cep');
+const cnpjInput = document.getElementById('cnpj');
+const residuosCheckboxes = document.querySelectorAll('.residuo');
 
-  const layer = new GeoJSONLayer({
-    url: geojsonUrl,
-    title: "Pontos de Coleta",
-    outFields: ["*"],
-    popupTemplate: {
-      title: "{Nome}",
-      content: `
-        <b>Endereço:</b> {endereco}<br>
-        <b>Bairro:</b> {bairro}<br>
-        <b>Cidade:</b> {Cidade} - {Estado}<br>
-        <b>Resíduo:</b> {residuo}<br>
-        <b>Dia da Coleta:</b> {dia_semana}
-      `
-    },
-    renderer: {
-      type: "unique-value",
-      field: "residuo",
-      uniqueValueInfos: [
-        { value:"Plástico", symbol:{ type:"simple-marker", color:"#fdd835", size:12, outline:{color:"#fff", width:1} }},
-        { value:"Papel",    symbol:{ type:"simple-marker", color:"#42a5f5", size:12, outline:{color:"#fff", width:1} }},
-        { value:"Vidro",    symbol:{ type:"simple-marker", color:"#66bb6a", size:12, outline:{color:"#fff", width:1} }}
-      ]
-    }
-  });
-
-  const map = new Map({ basemap: "streets-navigation-vector", layers: [layer] });
-  const view = new MapView({
-    container: "mapDiv",
-    map: map,
-    center: [-56.132, -15.646],
-    zoom: 13,
-    constraints: { minZoom: 11, maxZoom: 18 }
-  });
-
-  const bairro = document.getElementById("bairro");
-  const dia = document.getElementById("dia");
-  const residuo = document.getElementById("residuo");
-  const total = document.getElementById("total");
-  const plastico = document.getElementById("plastico");
-  const papel = document.getElementById("papel");
-  const vidro = document.getElementById("vidro");
-  const aplicar = document.getElementById("aplicar");
-  const limpar = document.getElementById("limpar");
-  const gerarPdf = document.getElementById("gerarPdf");
-
-  layer.when(() => {
-    popularFiltros();
-    atualizarCards();
-  });
-
-  function popularFiltros() {
-    layer.queryFeatures({ where:"1=1", outFields:["bairro","dia_semana"], returnDistinctValues:true })
-      .then(r => {
-        [...new Set(r.features.map(f=>f.attributes.bairro))].filter(Boolean).sort()
-          .forEach(v=>bairro.add(new Option(v,v)));
-        [...new Set(r.features.map(f=>f.attributes.dia_semana))].filter(Boolean).sort()
-          .forEach(v=>dia.add(new Option(v,v)));
-      });
-  }
-
-  function atualizarCards() {
-    layer.queryFeatures({ where: layer.definitionExpression||"1=1", returnGeometry:false })
-      .then(r=>{
-        total.textContent = r.features.length;
-        plastico.textContent = r.features.filter(f=>f.attributes.residuo==="Plástico").length;
-        papel.textContent = r.features.filter(f=>f.attributes.residuo==="Papel").length;
-        vidro.textContent = r.features.filter(f=>f.attributes.residuo==="Vidro").length;
-      });
-  }
-
-  aplicar.onclick = async () => {
-    let where = "1=1";
-    if(bairro.value) where += ` AND bairro='${bairro.value}'`;
-    if(dia.value) where += ` AND dia_semana='${dia.value}'`;
-    if(residuo.value) where += ` AND residuo='${residuo.value}'`;
-
-    layer.definitionExpression = where;
-    atualizarCards();
-
-    const result = await layer.queryFeatures({ where:where, returnGeometry:true });
-    const featuresWithGeom = result.features.filter(f=>f.geometry);
-
-    if(featuresWithGeom.length>0){
-      const extent = featuresWithGeom.map(f=>f.geometry.extent||f.geometry)
-        .reduce((ext,e)=>ext?ext.union(e):e);
-      view.goTo(extent.expand(1.5));
-      view.popup.open({ features:[featuresWithGeom[0]], location:featuresWithGeom[0].geometry });
-    }else{
-      view.popup.close();
-    }
-  };
-
-  limpar.onclick = () => {
-    bairro.value = ""; dia.value = ""; residuo.value = "";
-    layer.definitionExpression = "1=1";
-    atualizarCards();
-    view.popup.close();
-    view.goTo({center:[-56.132,-15.646], zoom:13});
-  };
-
-  gerarPdf.onclick = async () => {
-    const { jsPDF } = window.jspdf;
-    const result = await layer.queryFeatures({ where: layer.definitionExpression||"1=1", returnGeometry:false });
-
-    if(result.features.length===0){ alert("Não há dados para gerar relatório!"); return; }
-
-    const rows = result.features.map(f=>{
-      const a = f.attributes;
-      return [a.Nome, a.endereco, a.bairro, a.residuo, a.dia_semana];
-    });
-
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Relatório de Coleta Seletiva - Várzea Grande/MT", 14, 20);
-    doc.setFontSize(12);
-    doc.text(`Total de Pontos: ${result.features.length}`, 14, 28);
-
-    doc.autoTable({ startY:35, head:[['Nome','Endereço','Bairro','Resíduo','Dia']], body:rows, styles:{fontSize:10} });
-    doc.save("relatorio_coleta.pdf");
-  };
-
+// Formatação CNPJ
+cnpjInput.addEventListener('input', () => {
+  let v = cnpjInput.value.replace(/\D/g,'').slice(0,14);
+  v = v.replace(/^(\d{2})(\d)/,'$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/,'.$1/$2');
+  v = v.replace(/(\d{4})(\d)/,'$1-$2');
+  cnpjInput.value = v;
 });
+
+// Formatação CEP
+cepInput.addEventListener('input', () => {
+  let v = cepInput.value.replace(/\D/g,'').slice(0,8);
+  if(v.length > 5) v = v.slice(0,5) + '-' + v.slice(5);
+  cepInput.value = v;
+});
+
+// Busca CEP
+cepInput.addEventListener('blur', async () => {
+  const cep = cepInput.value.replace(/\D/g,'');
+  if(cep.length !== 8){ alert('Digite um CEP válido'); return; }
+  try{
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await res.json();
+    if(data.erro){ alert('CEP não encontrado'); return; }
+    document.getElementById('endereco').value = data.logradouro || '';
+    document.getElementById('bairro').value = data.bairro || '';
+    document.getElementById('cidade').value = data.localidade || '';
+    document.getElementById('estado').value = data.uf || '';
+  } catch(e){ alert('Erro ao buscar CEP'); console.error(e);}
+});
+
+// Atualiza valor dinamicamente
+function atualizarValor(){
+  const tipo = tipoEmpreendimento.value;
+  const residuosSelecionados = Array.from(residuosCheckboxes).filter(r => r.checked).map(r => r.value);
+
+  if(tipo === 'Distribuidora de Bebidas' && residuosSelecionados.includes('Vidro')){
+    valorInput.value = 'R$250/mês';
+    return;
+  }
+  if(tipo === 'Condomínio') valorInput.value = 'R$200 adesão + R$350/mês';
+  else if(tipo === 'Mercado' || tipo === 'Empresa') valorInput.value = 'R$350/mês';
+  else valorInput.value = '';
+}
+
+tipoEmpreendimento.addEventListener('change', atualizarValor);
+residuosCheckboxes.forEach(r => r.addEventListener('change', atualizarValor));
+
+// Cadastro
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const residuos = Array.from(document.querySelectorAll('.residuo:checked')).map(r=>r.value).join(', ');
+  const registro = {
+    cnpj: cnpjInput.value.trim(),
+    nome: document.getElementById('nome').value.trim(),
+    cep: cepInput.value.trim(),
+    endereco: document.getElementById('endereco').value.trim(),
+    numero: document.getElementById('numero').value.trim(),
+    quadra: document.getElementById('quadra').value.trim(),
+    bairro: document.getElementById('bairro').value.trim(),
+    cidade: document.getElementById('cidade').value.trim(),
+    estado: document.getElementById('estado').value.trim(),
+    tipo: tipoEmpreendimento.value,
+    residuos,
+    valor: valorInput.value,
+    status: 'Pendente Pagamento'
+  };
+  const { error } = await supabaseClient.from('cadastros').insert([registro]);
+  if(error){ alert('Erro ao salvar: ' + error.message); return; }
+  alert('Cadastro salvo com sucesso!');
+  form.reset();
+  valorInput.value = '';
+  carregarRegistros();
+});
+
+// Gerar PDF
+function gerarCertificadoPDF(registro){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait', unit:'pt', format:'a4'});
+  doc.setFillColor(225,245,227);
+  doc.rect(0,0,595,842,'F');
+
+  doc.setFontSize(22);
+  doc.setTextColor(34,87,34);
+  doc.text("Certificado de Adesão à Coleta Seletiva", 297, 60, {align:"center"});
+
+  doc.setFontSize(12);
+  doc.setTextColor(0,0,0);
+  let y=120;
+  doc.text(`CNPJ: ${registro.cnpj}`,40,y); y+=20;
+  doc.text(`Proprietário: ${registro.nome}`,40,y); y+=20;
+  doc.text(`Endereço: ${registro.endereco}, Nº ${registro.numero}, ${registro.bairro}, ${registro.cidade} - ${registro.estado}`,40,y); y+=20;
+  doc.text(`Tipo de Empreendimento: ${registro.tipo}`,40,y); y+=20;
+  doc.text(`Resíduos Coletados: ${registro.residuos}`,40,y); y+=20;
+  doc.text(`Mensalidade: ${registro.valor}`,40,y); y+=20;
+  doc.text(`Status: ${registro.status}`,40,y); y+=40;
+  doc.setFontSize(14); doc.setTextColor(34,87,34);
+  doc.text("Este certificado comprova a adesão ao programa de coleta seletiva.",40,y); y+=30;
+  doc.setFontSize(12); doc.setTextColor(0,0,0);
+  doc.text("Assinatura do Responsável:",40,y); doc.line(180,y+5,400,y+5);
+  doc.save(`Certificado_${registro.nome.replace(/\s+/g,'_')}.pdf`);
+}
+
+// Carregar registros
+async function carregarRegistros(){
+  const { data, error } = await supabaseClient.from('cadastros').select('*').order('id',{ascending:false});
+  if(error){ console.error(error); return; }
+  tabela.innerHTML = '';
+  data.forEach(r=>{
+    const row = tabela.insertRow();
+    row.insertCell(0).textContent = r.cnpj;
+    row.insertCell(1).textContent = r.nome;
+    row.insertCell(2).textContent = r.endereco;
+    row.insertCell(3).textContent = r.numero;
+    row.insertCell(4).textContent = r.quadra;
+    row.insertCell(5).textContent = r.bairro;
+    row.insertCell(6).textContent = r.cidade;
+    row.insertCell(7).textContent = r.estado;
+    row.insertCell(8).textContent = r.tipo;
+    row.insertCell(9).textContent = r.residuos;
+    row.insertCell(10).textContent = r.valor;
+    row.insertCell(11).textContent = r.status;
+
+    // Certificado com botão
+    const cell = row.insertCell(12);
+    const btn = document.createElement('button');
+    btn.textContent = 'Gerar Certificado PDF';
+    btn.className = 'btn-certificado';
+    btn.onclick = () => gerarCertificadoPDF(r);
+    cell.appendChild(btn);
+  });
+}
+carregarRegistros();
 </script>
 
 </body>
