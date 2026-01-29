@@ -1,1 +1,2 @@
-# Coleta-Seletiva
+# Sistema de cadastro e certificado de coleta seletiva
+
